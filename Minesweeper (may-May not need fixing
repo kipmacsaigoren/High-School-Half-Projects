@@ -408,7 +408,7 @@ while True:
       qz = choice.replace(",", "")
       b = qz.replace(" ", "")
       inputs = list(b)
-      if len(inputs) == 3 and inputs[0] in base32[0:level.columns] and inputs[1] in base32[0:level.rows]:
+      if len(inputs) == 3 and str(inputs[0]) in base32[0:level.rows] and str(inputs[1]) in base32[0:level.columns] :
           rowChoice = base32.index(inputs[0])
           columnChoice = base32.index(inputs[1])
       else:
@@ -460,7 +460,7 @@ while True:
         print("you may not unflag a tile that has not already been flagged\n")
       countAround(rowChoice, columnChoice, playBoard, level, action)
     if winCondition == level.mines:
-      for i in range(0, random.randint(76, 1500)):
+      for i in range(0, random.randint(76, 400)):
         if i % 7 == 0:
           print("roncgatlutaniot! v'eoyu nwo¡")
         elif i % 23 == 0:
@@ -491,3 +491,5 @@ while True:
     print("\n\nYou have %d flags left" %level.flags)
       #prints the board after all actions have been made
     print()
+
+
