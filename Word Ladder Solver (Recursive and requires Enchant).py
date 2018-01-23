@@ -1,8 +1,9 @@
-import pyenchant, re
+import enchant, re
 letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
-d = pyenchant.Dict("en_US")
+d = enchant.Dict("en_US")
 
-def wordcheck(word1, word2):
+
+def word_check(word1, word2):
     """Checks whether each word is real and whether they are the same length"""
     global startword
     global endword
@@ -11,26 +12,26 @@ def wordcheck(word1, word2):
     if startwordcheck != None:
         print("start word not letters: error")
         startword = input("type a new starting word: ")
-        wordcheck(startword, endword)
+        word_check(startword, endword)
     if endwordcheck != None:
         print("end word not letters: error")
         endword = input("type a new end word: ")
-        wordcheck(startword, endword)
+        word_check(startword, endword)
     startdictcheck = d.check(word1)
     enddictcheck = d.check(word2)
     if len(startword) != len(endword):
         print("word lengths do not match")
         startword = input("type a new starting word: ")
         endword = input("type a new end word: ")
-        wordcheck(startword, endword)
+        word_check(startword, endword)
     if startdictcheck != True:
         print("start word not an english word: error")
         startword = input("type a new starting word: ")
-        wordcheck(startword, endword)
+        word_check(startword, endword)
     if enddictcheck != True:
         print("end word not an english word: error")
         endword = input("type a new end word: ")
-        wordcheck(startword, endword)
+        word_check(startword, endword)
 
 
 
@@ -103,13 +104,11 @@ def solve(b):
                 if wordlist[i][1] == path[-1]:
                     path.remove(wordlist[i][1])
                     solvedpath.append(wordlist[i][1])
-                    return None
                     """this case is only for when you have found the endword and are going back through
                     the function to print out the path it checks. the only case where the word being tested
                     is the last word in the path is if you have found the correct path to the endword.
                     this creates the solved path for you to print out in the end."""
-
-
+                    return None
 
 
 
@@ -119,7 +118,7 @@ while True:
     usedwords = []
     path = []
     solvedpath = []
-    wordcheck(startword.title(), endword.title())
+    word_check(startword.title(), endword.title())
     solve(startword)
     solvedpath.append(startword)
     solvedpath.reverse()
