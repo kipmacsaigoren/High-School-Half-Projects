@@ -1,4 +1,5 @@
 import math
+
 a = """100 0 45
 e
 100 0 50
@@ -286,16 +287,16 @@ e
 e"""
 a = a.split("\n")
 for i in a:
-  if i == "e":
-    a.remove(i)
+    if i == "e":
+        a.remove(i)
 a.remove("e")
 print(a)
 for i in a:
-  g = str(a.index(i)+1)
-  i=i.split(" ")
-  pt = "(" + i[0] +","+i[1]+","+i[2]+")"
-  r = str(round(math.sqrt((100**2+int(i[1])**2)), 3))
-  xpara = "x(t) = " + i[0]+" + " + r+" * cos(w*t)"
-  ypara = "y(t) = " + i[1]+" + " + r+" * sin(w*t)"
-  zpara = "z(t) = " + i[2]+" + 10 * sin(3*w*t)"
-  print(g,pt,"\n ", xpara, "\n ", ypara,"\n ", zpara,"\n")
+    g = str(a.index(i) + 1)
+    i = i.split(" ")
+    pt = "(" + i[0] + "," + i[1] + "," + i[2] + ")"
+    r = str(round(math.sqrt((100 ** 2 + int(i[1]) ** 2)), 3))
+    xpara = "x(t) = " + i[0] + " + " + r + " * cos(w*t)"
+    ypara = "y(t) = " + i[1] + " + " + r + " * sin(w*t)"
+    zpara = "z(t) = " + i[2] + " + 10 * sin(3*w*t)"
+    print(g, pt, "\n ", xpara, "\n ", ypara, "\n ", zpara, "\n")

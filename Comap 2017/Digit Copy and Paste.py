@@ -1,4 +1,5 @@
 import math
+
 digs = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
 
 ztheta = """0045
@@ -71,4 +72,3 @@ for i in ztheta:
     d += '\n(100, ' + str(i[0]) + ", " + str(i[1]) + ')' + '\nx = ' + str(radius) + "*cos(wt)\ny = " + str(
         radius) + "*sin(wt)"
 print(d)
-

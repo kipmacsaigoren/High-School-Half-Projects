@@ -1,5 +1,7 @@
 import enchant, re
-letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+
+letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+           "w", "x", "y", "z"]
 d = enchant.Dict("en_US")
 
 
@@ -9,11 +11,11 @@ def word_check(word1, word2):
     global endword
     startwordcheck = re.fullmatch(r'[a-zA-Z]', word1)
     endwordcheck = re.fullmatch(r'[a-zA-Z]', word2)
-    if startwordcheck != None:
+    if startwordcheck is not None:
         print("start word not letters: error")
         startword = input("type a new starting word: ")
         word_check(startword, endword)
-    if endwordcheck != None:
+    if endwordcheck is not None:
         print("end word not letters: error")
         endword = input("type a new end word: ")
         word_check(startword, endword)
@@ -24,15 +26,14 @@ def word_check(word1, word2):
         startword = input("type a new starting word: ")
         endword = input("type a new end word: ")
         word_check(startword, endword)
-    if startdictcheck != True:
+    if not startdictcheck:
         print("start word not an english word: error")
         startword = input("type a new starting word: ")
         word_check(startword, endword)
-    if enddictcheck != True:
+    if not enddictcheck:
         print("end word not an english word: error")
         endword = input("type a new end word: ")
         word_check(startword, endword)
-
 
 
 def findOneLetterAway(word):
@@ -65,7 +66,8 @@ def closenesscheck(start, test):
     for i in range(len(startsplit)):
         if startsplit[i] == testsplit[i]:
             testscore += 1
-    return(testscore)
+    return (testscore)
+
 
 def solve(b):
     wordlist = findOneLetterAway(b)
@@ -75,13 +77,13 @@ def solve(b):
         wordlist[i].insert(0, score)
         """makes it so each element in wordlist is a nested list containing the actual word and the
         number of similar letters to the goal word."""
-    wordlist.sort(reverse = True)
-    #sort by which has the highest score
-    #print(wordlist)
+    wordlist.sort(reverse=True)
+    # sort by which has the highest score
+    # print(wordlist)
     if wordlist is None:
-       path.remove(b)
-       return None
-       #if there are no possible words one letter away, return to the last iteration of the function
+        path.remove(b)
+        return None
+        # if there are no possible words one letter away, return to the last iteration of the function
     for i in range(len(wordlist)):
         if wordlist[i][1] == endword:
             solvedpath.append(endword)
@@ -94,13 +96,13 @@ def solve(b):
             path.append(wordlist[i][1])
             usedwords.append(wordlist[i][1])
             h = solve(wordlist[i][1])
-            if h == False:
+            if not h:
                 """if the word had already been used, the function returns false (line 87)
                 when that happens, this if statement removes it from the current path and
                 continues to the next element in wordlist."""
                 path.remove(wordlist[i][1])
                 continue
-            if path != []:
+            if path:
                 if wordlist[i][1] == path[-1]:
                     path.remove(wordlist[i][1])
                     solvedpath.append(wordlist[i][1])
@@ -109,7 +111,6 @@ def solve(b):
                     is the last word in the path is if you have found the correct path to the endword.
                     this creates the solved path for you to print out in the end."""
                     return None
-
 
 
 startword = input("type starting word: ").lower()
