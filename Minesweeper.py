@@ -1,6 +1,5 @@
 import random
 import time
-import replit
 
 base32 = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
           "w", "x", "y", "z", "1", "2", "3", "4"]
@@ -375,7 +374,7 @@ def youDied():
     while True:
         newGame = str.lower(input("Would you like to play again? Y/N\n\n"))
         if newGame == "y":
-            replit.clear()
+            print("\033[H\033[J")
             print("\n")
             break
             # Restarts the loop from line 275
@@ -402,7 +401,7 @@ while True:
             break
     level = acceptableDifficulties[difficultyInput]
     playBoard = boardMaker(level)
-    replit.clear()
+    print("\033[H\033[J")
     boardPrinter(playBoard, level)
     winCondition = 0
     print("\n acceptable actions include typing 'c' for click tiles, 'f' to flag tiles, and 'u' to unflag tiles \n")
@@ -419,7 +418,7 @@ while True:
                 rowChoice = base32.index(inputs[0])
                 columnChoice = base32.index(inputs[1])
             else:
-                replit.clear()
+                print("\033[H\033[J")
                 boardPrinter(playBoard, level)
                 print("\none of your inputs did not match,please try again\n")
                 continue
@@ -427,7 +426,7 @@ while True:
             action = inputs[2]
             if action in acceptableActions and rowChoice < level.rows and columnChoice < level.columns:
                 break
-            replit.clear()
+            print("\033[H\033[J")
             boardPrinter(playBoard, level)
             print("\none of your inputs did not match, please try again\n")
         if action == "c":
@@ -483,7 +482,7 @@ while True:
             while True:
                 newGame = str.lower(input("Would you like to play again? Y/N"))
                 if newGame == "y":
-                    replit.clear()
+                    print("\033[H\033[J")
                     print()
                     break
                     # restarts the entire playing loop
@@ -492,7 +491,7 @@ while True:
                 else:
                     print("one of your inputs did not match, please try again")
             break
-        replit.clear()
+        print("\033[H\033[J")
         boardPrinter(playBoard, level)
 
         print("\n\nYou have %d flags left" % level.flags)

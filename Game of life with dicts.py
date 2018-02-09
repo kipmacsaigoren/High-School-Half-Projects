@@ -1,4 +1,4 @@
-import random, time, replit
+import random, time
 
 gridHeight = 28
 gridWidth = 50
@@ -85,4 +85,4 @@ lst = cycler(gridHeight, gridWidth, g, 150)
 for i in lst:
     print(printableBoard(gridHeight, gridWidth, i), end="\n\n")
     time.sleep(.3)
-    replit.clear()
+    print("\033[H\033[J")

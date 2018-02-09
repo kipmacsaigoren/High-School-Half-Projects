@@ -1,4 +1,4 @@
-import random, time, replit
+import random, time
 
 currentlyLivingCells = []
 

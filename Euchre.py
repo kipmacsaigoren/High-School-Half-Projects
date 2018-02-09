@@ -1,4 +1,4 @@
-import random, replit, time
+import random, time
 
 # Any time there is a random choice, put in an ai choice later
 
@@ -239,7 +239,7 @@ def trumpChooser(dealer):
             if i == 5:
                 whoDidWhat = []
                 input("hit enter again to continue")
-                replit.clear()
+                print("\033[H\033[J")
                 print("the card that was passed on was", kitty[0].displayValue)
                 for x in range(9):
                     suitsLeft.append("pass")
@@ -252,7 +252,7 @@ def trumpChooser(dealer):
                     if trumpInput in suitsLeft:
                         break
                     input("you have to type a real suit or pass\nRemember you cannot pick the wuit you previously passed on\n\n double remember that if you are the dealer you cannot type pass\n   hit enter to try again")
-                    replit.clear()
+                    print("\033[H\033[J")
                     print("the card that was passed on was", kitty[0].displayValue, "\n\n")
                     for i in whoDidWhat:
                         if i != user:
@@ -286,7 +286,7 @@ def trumpChooser(dealer):
                         break
                     else:
                         input("please either type 'Y', 'N'\n    Hit enter to continue")
-                        replit.clear()
+                        print("\033[H\033[J")
                         print("the dealer is", dealer.name)
                         print("The card on the table is \n\n", kitty[0].displayValue, "\n")
                         for j in whoDidWhat:
@@ -310,7 +310,7 @@ def trumpChooser(dealer):
                         four = user.playCard(None, None, None)
                         if four:
                             input("you must type a card that is in your hand\n   hit enter to try again")
-                            replit.clear()
+                            print("\033[H\033[J")
                             print("the dealer is", dealer.name)
                             print("The card on the table is \n\n", kitty[0].displayValue, "\n")
                             for n in whoDidWhat:
@@ -346,7 +346,7 @@ def playTrick(dealer, lastTrickWinner, _trumpSuit, _trumpColor):
             userCardThrow = user.playCard(_trumpSuit, None, leftBauer)
             if userCardThrow:
                 input("you must type a card that is in your hand.\n   hit enter to try again")
-                replit.clear()
+                print("\033[H\033[J")
                 continue
             else:
                 firstCardThrow = userCardThrow
@@ -372,7 +372,7 @@ def playTrick(dealer, lastTrickWinner, _trumpSuit, _trumpColor):
                 break
             else:
                 input("please type a card in your hand or follow suit\n   Hit enter to continue")
-                replit.clear()
+                print("\033[H\033[J")
                 print("the trump suit is", _trumpSuit, "\n")
                 print("your team has", userTeam.handScore, "tricks")
                 print("the other team has", otherTeam.handScore, "tricks\n")
@@ -390,7 +390,7 @@ def playTrick(dealer, lastTrickWinner, _trumpSuit, _trumpColor):
     trickWinner = cardsPlayed[0][1]
     print(trickWinner.name, "won this trick with", cardsPlayed[0][0].displayValue, ", they will go fist next hand\n")
     input("hit enter to continue")
-    replit.clear()
+    print("\033[H\033[J")
     return trickWinner
 
 
@@ -398,7 +398,7 @@ def playHand(dealer):
     trumpSuit, trumpColor, teamThatCalled = trumpChooser(dealer)
     print("the team that called is", teamThatCalled.name, "\n")
     input("hit enter to coninue")
-    replit.clear()
+    print("\033[H\033[J")
     lastWinner = None
     for i in range(5):
         if i == 0:
@@ -419,7 +419,7 @@ def playHand(dealer):
     print("your team has", userTeam.points, "points")
     print("the other team has", otherTeam.points, "points")
     input("hit Enter to continue")
-    replit.clear()
+    print("\033[H\033[J")
     newDealer = clockwiseOrder[clockwiseOrder.index(dealer) + 1]
     return newDealer
 
