@@ -1,6 +1,17 @@
 import numpy
 import math
 from random import random, randint
+import matplotlib.pyplot as plt
+
+
+with open("/home/kipmacsaigoren/Downloads/train-images-idx3-ubyte", "rb") as rawData:
+    rawData.seek(16, 1)
+    # 28x28 pixels
+    # the first 16 bytes are header stuff
+    testImage = numpy.array([[ord(rawData.read(1)) for i in range(28)] for j in range(28)])
+
+plt.imshow(testImage, cmap='gray')
+plt.show()
 
 
 def sigmoid(x):
@@ -86,6 +97,3 @@ class Network(object):
                 # noinspection PyUnboundLocalVariable
                 return newValueVector
 
-
-test = Network(4)
-test.forwardProp(None)
