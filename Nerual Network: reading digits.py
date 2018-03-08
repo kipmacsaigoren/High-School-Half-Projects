@@ -11,10 +11,11 @@ with open("/home/kipmacsaigoren/Downloads/train-images-idx3-ubyte", "rb") as raw
     testImage = numpy.array([[ord(rawData.read(1)) for i in range(28)] for j in range(28)])
 
 
-
-
 def sigmoid(x):
-    return 1 / (1 + math.exp(-x))
+    return math.exp(x) / (1 + math.exp(x))
+
+
+arraySig = numpy.vectorize(sigmoid, otypes=[float])
 
 
 class Neuron(object):
@@ -78,26 +79,26 @@ class Network(object):
             # here for seeing the values through the layers
             # noinspection SpellCheckingInspection
             if layer != self.layers - 1:
-                weightMatrix = numpy.array(
-                    [[i.weight for dummy, i in _neuron.backConnections.items()] for _neuron in self.neurons[layer + 1]])
+                weightMatrix = numpy.array([[i.weight for dummy, i in _neuron.backConnections.items()] for _neuron in self.neurons[layer + 1]])
                 """basically i is a neuron in the next level (layer+1) and 
                 j is a neuron in the current level (layer) and (i,j) are their coordinates to find
                 the weight of their connection in weightMatrix. using weightMatrix[i, j]"""
                 valueVector = numpy.array([[i.value] for i in self.neurons[layer]])
                 biasVector = numpy.array([[i.bias] for i in self.neurons[layer + 1]])
-                newValueVector = numpy.add(numpy.dot(weightMatrix, valueVector), biasVector)
+                newValueVector = numpy.clip(numpy.add(numpy.dot(weightMatrix, valueVector), biasVector), -500, 500)
                 # HAS NOT been sigmoided yet
                 for i in range(self.neuronsPerLayer[layer + 1]):
+                    print(sigmoid(newValueVector[i][0]))
                     self.neurons[layer + 1][i].value = sigmoid(newValueVector[i][0])
                     # there's an overflow somewhere with the sigmoid
                     # i have no Idea why it wont eve go to the second layer.
                     # we'll see
                     # sigmoid it here, might need to be changed later?
-                #print([j.value for j in self.neurons[layer + 1]])
+                # print([j.value for j in self.neurons[layer + 1]])
                 # PRINT FOR DEBUG
             else:
                 # noinspection PyUnboundLocalVariable
-                return newValueVector
+                return arraySig(newValueVector)
 
 
 test = Network(3)
