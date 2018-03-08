@@ -10,8 +10,7 @@ with open("/home/kipmacsaigoren/Downloads/train-images-idx3-ubyte", "rb") as raw
     # the first 16 bytes are header stuff
     testImage = numpy.array([[ord(rawData.read(1)) for i in range(28)] for j in range(28)])
 
-plt.imshow(testImage, cmap='gray')
-plt.show()
+
 
 
 def sigmoid(x):
@@ -38,7 +37,7 @@ class Synapse(object):
     def __init__(self, start, end):
         self.start = start
         self.end = end
-        self.weight = randint(-5, 5)
+        self.weight = randint(-2, 2)
         # to be randomized
 
 
@@ -70,10 +69,10 @@ class Network(object):
     # noinspection PyPep8Naming
     def forwardProp(self, data):
         # might be more arguments, who knows
-        for i in self.neurons[0]:
-            i.value = random()
+        for i in range(len(self.neurons[0])):
+            self.neurons[0][i].value = data[i//28, i%28]
             # here is where we'll put in the data
-        print([j.value for j in self.neurons[0]])
+        #784print([j.value for j in self.neurons[0]])
         # PRINT FOR DEBUG
         for layer in range(self.layers):
             # here for seeing the values through the layers
@@ -90,10 +89,20 @@ class Network(object):
                 # HAS NOT been sigmoided yet
                 for i in range(self.neuronsPerLayer[layer + 1]):
                     self.neurons[layer + 1][i].value = sigmoid(newValueVector[i][0])
+                    # there's an overflow somewhere with the sigmoid
+                    # i have no Idea why it wont eve go to the second layer.
+                    # we'll see
                     # sigmoid it here, might need to be changed later?
-                print([j.value for j in self.neurons[layer + 1]])
+                #print([j.value for j in self.neurons[layer + 1]])
                 # PRINT FOR DEBUG
             else:
                 # noinspection PyUnboundLocalVariable
                 return newValueVector
+
+
+test = Network(3)
+print(test.forwardProp(testImage))
+
+plt.imshow(testImage, cmap='gray')
+plt.show()
 
