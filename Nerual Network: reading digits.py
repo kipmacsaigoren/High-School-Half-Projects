@@ -99,7 +99,6 @@ class Network(object):
                 # print([j.value for j in self.neurons[layer + 1]])
                 # PRINT FOR DEBUG
             else:
-                # noinspection PyUnboundLocalVariable
                 return arraySig(newValueVector)
 
 
