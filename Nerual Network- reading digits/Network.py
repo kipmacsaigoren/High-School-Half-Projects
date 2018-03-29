@@ -3,58 +3,17 @@ import matplotlib.pyplot as plt
 import pickle
 from os.path import isfile
 
-# test data in feedable format: /home/kipmacsaigoren/Downloads/Training-feed
+# feedable format: /home/kipmacsaigoren/Downloads/Training-feed
 #    feedable[n] is a 784 element list of gray scale values for nth training image
-# test data in printable format: /home/kipmacsaigoren/Downloads/Training-print
+# printable format: /home/kipmacsaigoren/Downloads/Training-print
 #    printable[n] is a 28x28 numpy array with gray scale for nth training image
 # labels: /home/kipmacsaigoren/Downloads/Training-labels
 #    label[n] is an integer labeling the nth training image
 
 
-"""with open("/home/kipmacsaigoren/Downloads/train-images-idx3-ubyte", "rb") as rawData:
-    rawData.seek(16, 1)
-    # 28x28 pixels
-    # the first 16 bytes are header stuff
-    testImagesToPrint = [numpy.array([[ord(rawData.read(1)) for i in range(28)] for j in range(28)]) for k in range(60000)]
-"""
-
-
 def sigmoid(x):
     return 1.0 / (1.0 + numpy.exp(-x))
 
-
-"""
-class Neuron(object):
-    # Ha ha it turns out this is even also not necessary
-    def __init__(self, level):
-        self.level = level
-        self.value = 0
-        # to be made random
-        if self.level != 0:
-            self.bias = randint(-5, 5)
-            # to be randomized, the first level has no bias
-        self.forwardConnections = {}
-        # of the format {lastLayerNeuron:synapse object} (subject to change)
-        self.backConnections = {}
-        # {nextLayerNeuron:synapse obj} (subject to change)
-        even though they'll be back connections, the synapse 
-        object will be in the same direction if that makes sense.
-        like start and end won't be reversed, it will still go from input towards output.
-
-
-class Synapse(object):
-    # is it necessary?
-    # is there a better way to store the weights?
-    # maybe instead of neuron.backConnections{lastLayerNeuron:synapse}
-    # we can have neuron.backConnections{lastLayerNeuron:weight}
-    # that sounds better, just have to make sure we store the
-    # same weights for forward and back in the same synapse
-    def __init__(self, start, end):
-        self.start = start
-        self.end = end
-        self.weight = randint(-2, 2)
-        # to be randomized
-"""
 
 class Network(object):
     def __init__(self, sizes):
