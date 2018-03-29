@@ -8,7 +8,7 @@ from os.path import isfile
 # printable format: /home/kipmacsaigoren/Downloads/Training-print
 #    printable[n] is a 28x28 numpy array with gray scale for nth training image
 # labels: /home/kipmacsaigoren/Downloads/Training-labels
-#    label[n] is an integer labeling the nth training image
+#    label[n] is a 10x1 numpy array where correct label = 1 and all other elements are 0
 
 
 def sigmoid(x):

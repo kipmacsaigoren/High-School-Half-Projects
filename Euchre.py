@@ -6,7 +6,7 @@ choicesdict = {"y": "told the dealer to pick it up", "n": "passed"}
 suits = {"spades": "S", "hearts": "H", "diamonds": "D", "clubs": "C"}
 
 suitColors = {"hearts": "red", "diamonds": "red", "clubs": "black", "spades": "black"}
-nonTrumpRanks = ["A", "K", "Q", "J", "10", "9"]
+nonTrumpRanks = ["A", "K", "Q", "J", "T", "9"]
 
 
 class card(object):
