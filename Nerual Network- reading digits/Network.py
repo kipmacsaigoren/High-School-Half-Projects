@@ -1,7 +1,7 @@
 import numpy
 import matplotlib.pyplot as plt
 import pickle
-from os.path import isfile
+import time
 
 # feedable format: /home/kipmacsaigoren/Downloads/Training-feed
 #    feedable[n] is a 784 element list of gray scale values for nth training image
@@ -9,6 +9,17 @@ from os.path import isfile
 #    printable[n] is a 28x28 numpy array with gray scale for nth training image
 # labels: /home/kipmacsaigoren/Downloads/Training-labels
 #    label[n] is a 10x1 numpy array where correct label = 1 and all other elements are 0
+start = time.time()
+with open("/home/kipmacsaigoren/Downloads/Training-feed", "rb") as L:
+    feedForwardImages = pickle.load(L)
+
+with open("/home/kipmacsaigoren/Downloads/Training-print", "rb") as L:
+    printImages = pickle.load(L)
+
+with open("/home/kipmacsaigoren/Downloads/Training-labels", "rb") as L:
+    feedForwardLabels = pickle.load(L)
+
+print("opening took:", time.time()-start)
 
 
 def sigmoid(x):
@@ -32,12 +43,13 @@ class Network(object):
         # data should be in an nx1 numpy vector
         for w, b in zip(self.weights, self.sizes):
             # picks weights from this layer to the next and biases from the next layer
-            a = sigmoid(numpy.dot(w, a) + b)
+            a = sigmoid(numpy.clip(numpy.dot(w, a) + b, -700, 700))
         return a
 
 
 test = Network([784, 15, 10])
-#print(test.forward_prop([testImages[3]]))
-plt.imshow(testImagesToPrint[3], cmap='gray')
+print(test.forward_prop(feedForwardImages[5]))
+plt.imshow(printImages[5], cmap='gray')
 plt.show()
+print(feedForwardLabels[5])
 
