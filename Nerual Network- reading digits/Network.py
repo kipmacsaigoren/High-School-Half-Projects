@@ -24,6 +24,7 @@ print("opening took:", time.time()-start)
 
 training_tuples = [(x, y) for x, y in zip(feedForwardImages, feedForwardLabels)]
 
+
 def sigmoid(x):
     return 1.0 / (1.0 + numpy.exp(-x))
 
@@ -111,14 +112,16 @@ class Network(object):
             self.biases[i] = self.biases[i] - \
                              (learning_rate/len(mini_batch))*bias_gradient[i]
 
-    def gradient_descent(self, training_data, batch_size, learning_rate, epochs):
-        n = len(training_data)
+    def gradient_descent(self, training_data, batch_size, learning_rate, epochs, test_data):
         for i in range(epochs):
-            shuffle()
+            shuffle(training_data)
+            for j in range(0, len(training_data), batch_size):
+                self.update_mini_batch(training_data[j:j+batch_size], learning_rate)
+                # update weights and biases for each successive group of [batch_size]
+                # sample data and then loop though ever single example
 
-test = Network([784, 15, 10])
-print(len(test.weights)==test.layers-1)
-print(test.forward_prop(feedForwardImages[5]))
-plt.imshow(printImages[5], cmap='gray')
-plt.show()
-print(feedForwardLabels[5])
+            print("epoch %d completed" %i)
+
+
+net = Network([784, 15, 10])
+
