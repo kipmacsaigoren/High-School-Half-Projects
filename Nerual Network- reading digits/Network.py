@@ -1,5 +1,4 @@
 import numpy
-import matplotlib.pyplot as plt
 import pickle
 import time
 from random import shuffle
@@ -9,20 +8,30 @@ from random import shuffle
 # printable format: /home/kipmacsaigoren/Downloads/Training-print
 #    printable[n] is a 28x28 numpy array with gray scale for nth training image
 # labels: /home/kipmacsaigoren/Downloads/Training-labels
-#    label[n] is a 10x1 numpy array where correct label = 1 and all other elements are 0
+#    label[n] is a 10x1 numpy array where correct label = 1 and all other elements are
+
+
 start = time.time()
-with open("/home/kipmacsaigoren/Downloads/Training-feed", "rb") as L:
-    feedForwardImages = pickle.load(L)
+with open("/home/kipmacsaigoren/Downloads/neural-net/Training-images", "rb") as L:
+    training_feed = pickle.load(L)
 
-with open("/home/kipmacsaigoren/Downloads/Training-print", "rb") as L:
-    printImages = pickle.load(L)
+with open("/home/kipmacsaigoren/Downloads/neural-net/Training-labels", "rb") as L:
+    training_labels = pickle.load(L)
 
-with open("/home/kipmacsaigoren/Downloads/Training-labels", "rb") as L:
-    feedForwardLabels = pickle.load(L)
+with open("/home/kipmacsaigoren/Downloads/neural-net/Test-images", "rb") as L:
+    test_feed = pickle.load(L)
+
+with open("/home/kipmacsaigoren/Downloads/neural-net/Test-labels", "rb") as L:
+    test_labels = pickle.load(L)
+
+"""with open("/home/kipmacsaigoren/Downloads/neural-net/Training-print", "rb") as L:
+    printImages = pickle.load(L)"""
 
 print("opening took:", time.time()-start)
 
-training_tuples = [(x, y) for x, y in zip(feedForwardImages, feedForwardLabels)]
+test_tuples = [(x, y) for x, y in zip(test_feed, test_labels)]
+
+training_tuples = [(x, y) for x, y in zip(training_feed, training_labels)]
 
 
 def sigmoid(x):
@@ -52,12 +61,16 @@ class Network(object):
         # this way it makes a next-layer-size (y) by this-layer-size (x) matrix of all the weights
         # weights[n][j, i] = weight from neuron i in nth layer to neuron j in n+1st layer
 
+        """
+        INCREDIBLY IMPORTANT: with n layers, there are n-1 weight and bias matrices
+        """
+
     def forward_prop(self, a):
         """might be more arguments, who knows
         data should be in an nx1 numpy vector"""
         for weight, bias in zip(self.weights, self.biases):
             # picks weights from this layer to the next and biases from the next layer
-            a = sigmoid(numpy.clip(numpy.dot(weight, a) + bias, -700, 700))
+            a = sigmoid(numpy.dot(weight, a) + bias)
         return a
 
     def back_prop(self, inpt, correction):
@@ -85,8 +98,30 @@ class Network(object):
         delta_w.insert(0, numpy.dot(error, activations[-2].transpose()))
         # starting with the second to last layer, going back:
         for layer in range(2, len(self.sizes)):
-            error = numpy.multiply(numpy.dot(self.weights[-layer].transpose(), error),
+            error = numpy.multiply(numpy.dot(self.weights[-layer+1].transpose(), error),
                                    sigmoid_prime(z_vectors[-layer]))
+            """ wow that was hell to figure out the indices. never using that "self.lengths" shit again
+            if I did it with something like "len(self.weights)" plus or minus one, the problem is that
+            we need to go back to front and its absolutely impossible to figure out the index on the weights
+            
+            IMPORTANT FOR UNDERSTANDING: there is no error for the first layer so we don't need the weights
+            from layer 1 to 2
+            
+            A quick explanation:        (W(l) is weights from l to l+1)
+            we know error(l) = (W^T(l) * error(l+1))⊙z(l)
+            so we want second to last error through error in the second row
+            we already have error for the last row, so we start with -2 index.
+            this is fine for everything (we already calculated error(l+1) when it was declared)
+            but the problem is that weights[-1] is not the weights applied to the last layer
+            (which doesn't exist), its the weights from 2nd to last to last layer
+            so we add one to the negative weight index so we get the one to the correct row
+            
+            at the end, we don't calculate an error for the first layer so we don't need the last
+            set of weights. that means we can go up to but not including len(self.sizes)
+            which would be an index error on self.weights, but that's why we added 1!
+            
+            jesus christ on two sticks that was so hard to understand.
+            """
             delta_b.insert(0, error)
             delta_w.insert(0, numpy.dot(error, activations[-layer-1].transpose()))
             # all three taken from here:
@@ -103,10 +138,11 @@ class Network(object):
         for inpt, correction in mini_batch:
             dw, db = self.back_prop(inpt, correction)
             # len(biases) == len(weights)
-            for i in range(self.lengths):
+            # So im just using weights without loss of generality
+            for i in range(len(self.weights)):
                 weight_gradient[i] = weight_gradient[i] + dw[i]
                 bias_gradient[i] = bias_gradient[i] + db[i]
-        for i in range(self.lengths):
+        for i in range(len(self.weights)):
             self.weights[i] = self.weights[i] - \
                               (learning_rate/len(mini_batch))*weight_gradient[i]
             self.biases[i] = self.biases[i] - \
@@ -114,14 +150,32 @@ class Network(object):
 
     def gradient_descent(self, training_data, batch_size, learning_rate, epochs, test_data):
         for i in range(epochs):
+            if i == 0:
+                tot = 0
+                correct = 0
+                for inpt, correction in test_data:
+                    if self.forward_prop(inpt).argmax() == correction.argmax():
+                        correct += 1
+                    tot += 1
+                print((correct / tot)*100, "% correctly identified")
             shuffle(training_data)
             for j in range(0, len(training_data), batch_size):
                 self.update_mini_batch(training_data[j:j+batch_size], learning_rate)
                 # update weights and biases for each successive group of [batch_size]
                 # sample data and then loop though ever single example
+            print("epoch %d completed" % i)
+            tot = 0
+            correct = 0
+            for inpt, correction in test_data:
+                if self.forward_prop(inpt).argmax() == correction.argmax():
+                    correct += 1
+                tot += 1
+            print((correct / tot)*100, "% correctly identified")
 
-            print("epoch %d completed" %i)
+
+net = Network([784, 100, 10])
+net.gradient_descent(training_tuples, 10, 3.0, 30, test_tuples)
 
 
-net = Network([784, 15, 10])
-
+with open("/home/kipmacsaigoren/Downloads/neural-net/Image-classifying-net", "wb") as save:
+    pickle.dump(net, save)
