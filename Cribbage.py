@@ -100,6 +100,10 @@ shuffle_and_deal(user)
 print(user.display_hand)
 
 
+def peg(dealer):
+    first = players.index(dealer) + 1
+
+
 
 
 

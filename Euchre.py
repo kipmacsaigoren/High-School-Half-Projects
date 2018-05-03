@@ -20,15 +20,12 @@ class Card(object):
         self.color = suit_colors[suit]
 
 
-def deck_creator():
-    deck = []
-    for i in non_trump_ranks:
-        for x in suits:
-            deck.append(Card(i, x))
-    return deck
+deck = []
+for i in non_trump_ranks:
+    for x in suits:
+        deck.append(Card(i, x))
 
 
-total_cards = deck_creator()
 
 
 class Team(object):
@@ -49,11 +46,11 @@ class Player(object):
 
     def populate_display_hand(self):
         for i in self.cards_in_hand:
-            self.display_hand.append(i.displayValue)
+            self.display_hand.append(i.display_value)
 
     def remove_card(self, card_to_remove):
         self.cards_in_hand.remove(card_to_remove)
-        self.display_hand.remove(card_to_remove.displayValue)
+        self.display_hand.remove(card_to_remove.display_value)
 
     def play_card(self, trump, suit_to_follow, _left_bauer):
         playable_cards = []
@@ -74,7 +71,7 @@ class Player(object):
             card_throw = None
             for x in playable_cards:
                 # selects the Card in your hand with a display value == card_throw
-                if x.displayValue == card_input:
+                if x.display_value == card_input:
                     card_throw = x
                     break
             if card_throw is not None:
@@ -139,8 +136,8 @@ def shuffle_and_deal(dealer):
     for i in range(4):
         clockwise_order[i].cards_in_hand = []
         clockwise_order[i].display_hand = []
-    random.shuffle(total_cards)
-    shuffled_deck = total_cards
+    random.shuffle(deck)
+    shuffled_deck = deck
     deal_first = clockwise_order.index(dealer) + 1
     cards_dealt = {
         0: [0, 1, 2, 10, 11],
@@ -169,14 +166,14 @@ def shuffle_and_deal(dealer):
 def card_rank_creator(trump, _color, suit_to_follow):
     ranked_cards = []
     guh = []
-    for i in total_cards:
+    for i in deck:
         if i.suit == trump and i.value == "J":
             ranked_cards.append(i)
-    for i in total_cards:
+    for i in deck:
         if i.color == _color and i.value == "J" and i not in ranked_cards:
             left_bauer = i
             ranked_cards.append(i)
-    for i in total_cards:
+    for i in deck:
         if i.suit == trump and i.value != "J":
             guh.append(i)
     guh.sort(key=lambda x: (non_trump_ranks.index(x.value)))
@@ -184,13 +181,13 @@ def card_rank_creator(trump, _color, suit_to_follow):
         ranked_cards.append(i)
     guh = []
     if suit_to_follow != trump:
-        for i in total_cards:
+        for i in deck:
             if i.suit == suit_to_follow:
                 guh.append(i)
         guh.sort(key=lambda x: (non_trump_ranks.index(x.value)))
         for i in guh:
             ranked_cards.append(i)
-    for i in total_cards:
+    for i in deck:
         if i not in ranked_cards:
             ranked_cards.append(i)
     for i in range(7):
@@ -206,7 +203,7 @@ def ai_trump_chooser(_chooser, dealer, card_up):
         pick_up_chance -= .75
     same_suit_cards = 0
     none_of = {"spades": "S", "hearts": "H", "diamonds": "D", "clubs": "C"}
-    for i in _chooser.cardsInHand:
+    for i in _chooser.cards_in_hand:
         none_of.pop(i.suit, None)
         if i.color == card_up.color and i.value == "J":
             pick_up_chance += .625
@@ -325,7 +322,7 @@ def trump_chooser(dealer):
                             continue
                     else:
                         dealer.ai_fake_discard(trump_choice)
-                    dealer.cardsInHand.append(kitty[0])
+                    dealer.cards_in_hand.append(kitty[0])
                     dealer.displayHand.append(kitty[0].display_value)
                     who_called = chooser.team
                     break
@@ -367,7 +364,7 @@ def play_trick(dealer, last_trick_winner, _trump_suit, _trump_color):
         opposite_suit = {"hearts": "diamonds", "diamonds": "hearts", "spades": "clubs", "clubs": "spades"}
         suit_to_follow = opposite_suit[first_card_throw.suit]
     cards_played.append([first_card_throw, first_player])
-    print(first_player.name, " played: ", first_card_throw.displayValue)
+    print(first_player.name, " played: ", first_card_throw.display_value)
     card_rank, null = card_rank_creator(_trump_suit, _trump_color, suit_to_follow)
     for i in range(1, 4):
         next_player = clockwise_order[clockwise_order.index(first_player) + i]
@@ -383,17 +380,17 @@ def play_trick(dealer, last_trick_winner, _trump_suit, _trump_color):
                 print("the other Team has", otherTeam.handScore, "tricks\n")
                 for j in cards_played:
                     if j[1] != user:
-                        print(j[1].name, "played: ", j[0].displayValue)
+                        print(j[1].name, "played: ", j[0].display_value)
                     else:
                         break
         cards_played.append([next_player_card_throw, next_player])
-        print(next_player.name, "played: ", next_player_card_throw.displayValue)
+        print(next_player.name, "played: ", next_player_card_throw.display_value)
     cards_played.sort(key=lambda buh: card_rank.index(buh[0]))
     print()
     # for i in cardsPlayed:
     # print(i[0].display_value, i[1].name)
     trick_winner = cards_played[0][1]
-    print(trick_winner.name, "won this trick with", cards_played[0][0].displayValue, ", they will go fist next hand\n")
+    print(trick_winner.name, "won this trick with", cards_played[0][0].display_value, ", they will go fist next hand\n")
     input("hit enter to continue")
     print("\033[H\033[J")
     return trick_winner
