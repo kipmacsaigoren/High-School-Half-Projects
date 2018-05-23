@@ -1,197 +1,156 @@
 import random
 
-# Any time there is a random choice, put in an ai choice later
-# underscores before variables just to not confuse function inputs with global variables
-# I know that's bad code but at some point it's really hard to think of a synonym for "card"
-
-choices_dict = {"y": "told the dealer to pick it up", "n": "passed"}
-suits = {"spades": "S", "hearts": "H", "diamonds": "D", "clubs": "C"}
-
-suit_colors = {"hearts": "red", "diamonds": "red", "clubs": "black", "spades": "black"}
-non_trump_ranks = ["A", "K", "Q", "J", "T", "9"]
+values = ["A", "K", "Q", "J", "T", "9"]
+suits = {"S": ["spades", "black"], "C": ["clubs", "black"], "D": ["diamonds", "red"], "H": ["hearts", "red"]}
 
 
 class Card(object):
     def __init__(self, value, suit):
         self.value = value
         self.suit = suit
+        self.color = suits[suit][1]
         self.is_trump = False
-        self.display_value = str(value) + str(suits[suit])
-        self.color = suit_colors[suit]
+        # may or may not be necessary
+        self.display_value = value + suit
 
 
-deck = []
-for i in non_trump_ranks:
-    for x in suits:
-        deck.append(Card(i, x))
-
-
-
-
-class Team(object):
-    def __init__(self, name):
-        #  self.teamPlayers = [teamMate1, teamMate2]
-        self.name = name
-        self.points = 0
-        self.handScore = 0
-        self.isWinningHand = False
+deck = [Card(i, j) for i in values for j in list(suits.keys())]
 
 
 class Player(object):
-    def __init__(self, name, player_team):
-        self.cards_in_hand = []
-        self.display_hand = []
+    def __init__(self, name):
         self.name = name
-        self.team = player_team
-
-    def populate_display_hand(self):
-        for i in self.cards_in_hand:
-            self.display_hand.append(i.display_value)
+        self.hand = []
+        self.display_hand = []
+        self.team = None
+        # definitely a better way to do this one but I'm lazy
 
     def remove_card(self, card_to_remove):
-        self.cards_in_hand.remove(card_to_remove)
         self.display_hand.remove(card_to_remove.display_value)
+        self.hand.remove(card_to_remove)
 
-    def play_card(self, trump, suit_to_follow, _left_bauer):
-        playable_cards = []
-        for i in self.cards_in_hand:
-            if trump == suit_to_follow:
-                if i.suit == suit_to_follow:
-                    playable_cards.append(i)
-                if i == _left_bauer:
-                    playable_cards.append(i)
-            elif i.suit == suit_to_follow and i != _left_bauer:
-                playable_cards.append(i)
-        if not playable_cards:
-            for i in self.cards_in_hand:
-                playable_cards.append(i)
-        if self.name == "user":
-            print("\nYour cards:", self.display_hand, "\n")
-            card_input = input("which Card would you like to discard?\n\n").upper()
-            card_throw = None
-            for x in playable_cards:
-                # selects the Card in your hand with a display value == card_throw
-                if x.display_value == card_input:
-                    card_throw = x
+    def discard(self, display_message, reprint_message, legal_choice, conditions):
+        # conditions should be a list of game conditions.
+        # conditions is ordered as [suit to follow, trump suit, left_bauer, add more things as needed here]
+        if self.name == "you":
+            card_in_hand = True
+            legal = True
+            test_card = None
+            while test_card is None:
+                if card_in_hand is not True:
+                    input("You must type a card that is in your hand\n     hit enter to continue")
+                    print("\033[H\033[J")
+                    print(reprint_message)
+                elif not legal:
+                    input(legal_choice.__doc__ + "\n      hit enter to continue")
+                    print("\033[H\033[J")
+                    print(reprint_message)
+                    # should this be an input? (hit enter to continue?)
+                    # probably dangerous to use the docstring as an error message but who cares really
+                print("\nYour cards: ", self.display_hand, "\n")
+                card_choice = input(display_message + " and hit enter\n")
+                for x in self.hand:
+                    if x.display_value == card_choice.upper():
+                        # checks if the card is actually in the hand
+                        # test_card will no longer be none breaking it out of the loop
+                        test_card = x
+                        break
+                if test_card is None:
+                    card_in_hand = False
+                elif legal_choice(self, test_card, conditions) is False:
+                    legal = False
+                    test_card = None
+                    # the card was in the hand but it was not a legal play so test_card has to be reset
+            self.remove_card(test_card)
+            return test_card
+        else:
+            # make it real sometime?
+            while True:
+                test_card = random.choice(self.hand)
+                if legal_choice(self, test_card, conditions):
                     break
-            if card_throw is not None:
-                # means that it was a legal play
-                self.remove_card(card_throw)
-                print()
-        else:
-            # Put a choice in here at some point
-            card_throw = random.choice(playable_cards)
-            self.remove_card(card_throw)
-        if card_throw is not None:
-            return card_throw
-        else:
-            return True
-
-    def ai_fake_discard(self, _trump_suit):
-        test_hand = []
-        for i in self.cards_in_hand:
-            test_hand.append(i)
-        for i in test_hand:
-            if i.suit == _trump_suit:
-                test_hand.remove(i)
-        if not test_hand:
-            self.cards_in_hand.sort(key=lambda x: (non_trump_ranks.index(x.value)), reverse=True)
-            if self.cards_in_hand[0].value != "J":
-                self.remove_card(self.cards_in_hand[0])
-            elif self.cards_in_hand[1].value != "J":
-                self.remove_card(self.cards_in_hand[1])
-            else:
-                self.remove_card(self.cards_in_hand[2])
-        else:
-            test_hand.sort(key=lambda x: (non_trump_ranks.index(x.value)), reverse=True)
-            self.remove_card(test_hand[0])
-
-    def ai_play_card(self, cards_played, _trump_suit):
-        # something goes here
-        if cards_played[0][1].team == self.team:
-            # this will change
-            self.ai_fake_discard(_trump_suit)
-            return
+            self.remove_card(test_card)
+            return test_card
 
 
-userTeam = Team("your Team")
-otherTeam = Team("the other Team")
-
-teams = [userTeam, otherTeam]
-
-user = Player("user", userTeam)
-cross_player = Player("cross_player", userTeam)
-left_player = Player("left_player", otherTeam)
-right_player = Player("right_player", otherTeam)
-
-clockwise_order = [user, left_player, cross_player, right_player, user, left_player, cross_player, right_player, user,
-                   left_player, cross_player, right_player]
+class Team(object):
+    def __init__(self, name, team_mate1, team_mate2):
+        self.team_players = [team_mate1, team_mate2]
+        for i in self.team_players:
+            i.team = self
+        self.name = name
+        self.points = 0
+        self.handScore = 0
+        self.is_winning_hand = False
 
 
-# this is so we can cycle through dealers and choosers, etc without index errors
+user = Player("you")
+left_player = Player("Left Computer")
+cross_player = Player("Cross Computer")
+right_player = Player("Right Computer")
+players = [user, left_player, cross_player, right_player] * 10
+
+user_team = Team("your team", user, cross_player)
+other_team = Team("the other team", left_player, right_player)
+
+teams = [user_team, other_team]
 
 
 def shuffle_and_deal(dealer):
     # also chooses the first dealer from the first black jack rule
-    for i in range(4):
-        clockwise_order[i].cards_in_hand = []
-        clockwise_order[i].display_hand = []
     random.shuffle(deck)
-    shuffled_deck = deck
-    deal_first = clockwise_order.index(dealer) + 1
+    # and index for players, not a player object
     cards_dealt = {
         0: [0, 1, 2, 10, 11],
         1: [3, 4, 12, 13, 14],
         2: [5, 6, 7, 15, 16],
         3: [8, 9, 17, 18, 19]
     }
-    for i in cards_dealt:
+    extras = deck[20:23]
+    for i in range(4):
         for x in range(5):
-            clockwise_order[deal_first + i].cards_in_hand.append(shuffled_deck[cards_dealt[i][x]])
-    for k in range(4):
-        clockwise_order[k].populate_display_hand()
-    for n in shuffled_deck:
-        if n.color == "black" and n.value == "J":
-            black_jack = n
-            break
-    for l in cards_dealt:
-        if shuffled_deck.index(black_jack) in cards_dealt[l]:
-            first_dealer = clockwise_order[deal_first + l]
-    extras = shuffled_deck[20:23]
-    if black_jack in extras:
-        first_dealer = clockwise_order[deal_first + extras.index(black_jack)]
-    return extras, first_dealer
+            players[players.index(dealer) + i].hand.append(deck[cards_dealt[i][x]])
+            players[players.index(dealer) + i].display_hand.append(deck[cards_dealt[i][x]].display_value)
+    return extras
 
 
-def card_rank_creator(trump, _color, suit_to_follow):
+def card_rank_creator(trump, color_inpt, suit_to_follow):
+    # could definitely be more efficient, but not enough to notice or care for this
     ranked_cards = []
-    guh = []
+    pre_sorted = []
+    # used to pre sort the non bauer cards before added into ranked cards
     for i in deck:
         if i.suit == trump and i.value == "J":
+            # right bauer
             ranked_cards.append(i)
     for i in deck:
-        if i.color == _color and i.value == "J" and i not in ranked_cards:
+        if i.color == color_inpt and i.value == "J" and i not in ranked_cards:
+            # left bauer
             left_bauer = i
             ranked_cards.append(i)
     for i in deck:
         if i.suit == trump and i.value != "J":
-            guh.append(i)
-    guh.sort(key=lambda x: (non_trump_ranks.index(x.value)))
-    for i in guh:
+            # trump cards
+            pre_sorted.append(i)
+    pre_sorted.sort(key=lambda x: values.index(x.value))
+    for i in pre_sorted:
         ranked_cards.append(i)
-    guh = []
+    pre_sorted = []
     if suit_to_follow != trump:
         for i in deck:
             if i.suit == suit_to_follow:
-                guh.append(i)
-        guh.sort(key=lambda x: (non_trump_ranks.index(x.value)))
-        for i in guh:
+                # cards of the suit that was led
+                pre_sorted.append(i)
+        pre_sorted.sort(key=lambda x: values.index(x.value))
+        for i in pre_sorted:
             ranked_cards.append(i)
     for i in deck:
         if i not in ranked_cards:
+            # the rest of the cards. the order doesn't matter for these.
             ranked_cards.append(i)
     for i in range(7):
         ranked_cards[i].is_trump = True
+        # necessary?
     return ranked_cards, left_bauer
 
 
@@ -203,7 +162,7 @@ def ai_trump_chooser(_chooser, dealer, card_up):
         pick_up_chance -= .75
     same_suit_cards = 0
     none_of = {"spades": "S", "hearts": "H", "diamonds": "D", "clubs": "C"}
-    for i in _chooser.cards_in_hand:
+    for i in _chooser.hand:
         none_of.pop(i.suit, None)
         if i.color == card_up.color and i.value == "J":
             pick_up_chance += .625
@@ -226,55 +185,19 @@ def ai_trump_chooser(_chooser, dealer, card_up):
 
 def trump_chooser(dealer):
     # 115 lines of pure unreadable nonsense, but it works, so I'm not changing it.
+    # future kip is fixing it though
+    choices_dict = {"y": "told the dealer to pick it up", "n": "passed"}
     who_did_what = []
-    kitty, doesnt_matter = shuffle_and_deal(dealer)
-    print("the dealer is", dealer.name)
-    print("The Card on the table is \n\n", kitty[0].display_value, "\n")
-    suits_left = list(suits.keys())
-    suits_left.remove(kitty[0].suit)
+    kitty = shuffle_and_deal(dealer)
+    print("The dealer is", dealer.name, "(" + dealer.team.name + ")")
+    print("The card on the table is \n\n", kitty[0].display_value, "\n")
+    suits_left = [i[0] for i in suits.values()]
+    suits_left.remove(suits[kitty[0].suit][0])
     for i in range(1, 9):
-        chooser = clockwise_order[clockwise_order.index(dealer) + i]
-        if i > 4:
-            if i == 5:
-                who_did_what = []
-                input("hit enter again to continue")
-                print("\033[H\033[J")
-                print("the Card that was passed on was", kitty[0].display_value)
-                for x in range(9):
-                    suits_left.append("pass")
-            if i == 8:
-                suits_left = list(filter(lambda a: a != "pass", suits_left))
-            if chooser == user:
-                while True:
-                    print("Your cards", user.display_hand, "\n")
-                    trump_input = input("choose a suit or type 'pass'").lower()
-                    if trump_input in suits_left:
-                        break
-                    input("you have to type a real suit or pass\n"
-                          "Remember you cannot pick the suit you previously passed on\n\n "
-                          "double remember that if you are the dealer you cannot type pass\n"
-                          "    hit enter to try again")
-                    print("\033[H\033[J")
-                    print("the Card that was passed on was", kitty[0].display_value, "\n\n")
-                    for j in who_did_what:
-                        if j != user:
-                            print(j.name, "passed")
-                        else:
-                            break
-                if trump_input != "pass":
-                    trump_choice = trump_input
-                    who_called = chooser.team
-                    break
-            else:
-                trump_choice = random.choice(suits_left)
-                if trump_choice != "pass":
-                    print("\n", chooser.name, "chose", trump_choice, "as trump\n")
-                    who_called = chooser.team
-                    break
-                else:
-                    print(chooser.name, "passed")
-                who_did_what.append(chooser)
-        else:
+        chooser = players[players.index(dealer) + i]
+        if i < 5:
+            # we're in the process of choosing whether or not to pick up the kitty card
+            # this part of the loop will run first (i<4)
             if chooser == user:
                 while True:
                     print("\nYour cards", user.display_hand)
@@ -284,12 +207,14 @@ def trump_chooser(dealer):
                         pickup = input("\nWould you like " + dealer.name + " to pick it up? Y/N\n")
                     if pickup == "y" or pickup == "n":
                         who_did_what.append([chooser, choices_dict[pickup]])
+                        # so that we can reprint it
                         print()
                         break
                     else:
-                        input("please either type 'Y', 'N'\n    Hit enter to continue")
+                        input("Please either type 'Y', 'N'\n    Hit enter to continue")
+                        # clear the terminal
                         print("\033[H\033[J")
-                        print("the dealer is", dealer.name)
+                        print("The dealer is " + dealer.name + " (" + dealer.team.name + ")")
                         print("The Card on the table is \n\n", kitty[0].display_value, "\n")
                         for j in who_did_what:
                             print(j[0].name, j[1])
@@ -307,98 +232,120 @@ def trump_chooser(dealer):
                 if user != chooser:
                     print(chooser.name, "told", dealer.name, "to pick it up")
                 trump_choice = kitty[0].suit
-                while True:
-                    if user == dealer:
-                        four = user.play_card(None, None, None)
-                        if four:
-                            input("you must type a Card that is in your hand\n   hit enter to try again")
-                            print("\033[H\033[J")
-                            print("the dealer is", dealer.name)
-                            print("The Card on the table is \n\n", kitty[0].display_value, "\n")
-                            for n in who_did_what:
-                                print(n[0].name, n[1])
-                                if n[1] != "passed":
-                                    break
-                            continue
-                    else:
-                        dealer.ai_fake_discard(trump_choice)
-                    dealer.cards_in_hand.append(kitty[0])
-                    dealer.displayHand.append(kitty[0].display_value)
-                    who_called = chooser.team
-                    break
+                thing_to_print = "The dealer is " + dealer.name + " (" + dealer.team.name + ")" + \
+                                 "\nThe Card on the table is \n\n" + kitty[0].display_value + "\n" + \
+                                 "\n".join([i[0].name + " " + i[1] for i in who_did_what]) + "\n"
+                dealer.discard("Please select a card to discard", thing_to_print, lambda a, b, c: True, [None] * 10)
+                # lambda: True should just return true. meaning any card is ok to choose
+                dealer.hand.append(kitty[0])
+                dealer.display_hand.append(kitty[0].display_value)
+                who_called = chooser.team
                 break
             elif pickup == "n" and chooser != user:
                 print(chooser.name, "passed")
-    trump_choice_color = suit_colors[trump_choice]
+        else:
+            if i == 5:
+                who_did_what = []
+                input("hit enter again to continue")
+                for x in range(9):
+                    # why is it added 9 times?
+                    # is it more likely for the computer to choose pass?
+                    suits_left.append("pass")
+            elif i == 8:
+                suits_left = list(filter(lambda a: a != "pass", suits_left))
+            if chooser == user:
+                while True:
+                    print("\033[H\033[J")
+                    print("the Card that was passed on was", kitty[0].display_value, "\n\n")
+                    for j in who_did_what:
+                        print(j[0], j[1])
+                    print("\nYour cards:", user.display_hand, "\n")
+                    trump_input = input("choose a suit as trump or type 'pass'").lower()
+                    if trump_input in suits_left:
+                        break
+                    input("Please type a real suit or the word \"pass\"\n"
+                          "Remember you cannot pick the suit that was previously passed on\n\n"
+                          "If you are the dealer, you can't type pass\n"
+                          "       hit enter to try again")
+            else:
+                trump_input = random.choice(suits_left)
+            who_did_what.append([chooser.name, "passed"])
+            if trump_input != "pass":
+                who_called = chooser.team
+                for j, k in suits.items():
+                    if k[0] == trump_input:
+                        trump_choice = j
+                        break
+                break
+    trump_choice_color = suits[trump_choice][1]
     return trump_choice, trump_choice_color, who_called
 
 
-def play_trick(dealer, last_trick_winner, _trump_suit, _trump_color):
+def legal_play(player, card_input, conditions):
+    """please follow suit if you can"""
+    suit_to_follow = conditions[0]
+    trump_suit = conditions[1]
+    left_bauer = conditions[2]
+    playable_cards = []
+    for card in player.hand:
+        if card.suit == suit_to_follow and card != left_bauer:
+            playable_cards.append(card)
+        if trump_suit == suit_to_follow:
+            if card == left_bauer:
+                playable_cards.append(card)
+    if not playable_cards:
+        playable_cards = player.hand
+    if card_input in playable_cards:
+        return True
+    return False
+
+
+def play_trick(dealer, last_trick_winner, trump_suit, trump_color):
     cards_played = []
-    test, left_bauer = card_rank_creator(_trump_suit, _trump_color, None)
+    null, left_bauer = card_rank_creator(trump_suit, trump_color, None)
+    # I just need the left bauer but can't get the ranked cards
+    # This will do just that half of the function with none as an input for suit to follow
+    discard_message = "The trump suit is " + suits[trump_suit][0] + \
+                     "\n\nYour team has " + str(user_team.handScore) + " tricks" + \
+                     "\nThe other Team has " + str(other_team.handScore) + " tricks\n"
     if dealer is None:
         first_player = last_trick_winner
     elif last_trick_winner is None:
-        first_player = clockwise_order[clockwise_order.index(dealer) + 1]
-    if first_player == user:
-        while True:
-            print("the trump suit is", _trump_suit, "\n")
-            print("your Team has", userTeam.handScore, "tricks")
-            print("the other Team has", otherTeam.handScore, "tricks\n")
-            user_card_throw = user.play_card(_trump_suit, None, left_bauer)
-            if user_card_throw:
-                input("you must type a Card that is in your hand.\n   hit enter to try again")
-                print("\033[H\033[J")
-                continue
-            else:
-                first_card_throw = user_card_throw
-                break
-    else:
-        print("the trump suit is", _trump_suit, "\n")
-        print("your Team has", userTeam.handScore, "tricks")
-        print("the other Team has", otherTeam.handScore, "tricks\n")
-        first_card_throw = first_player.play_card(_trump_suit, None, left_bauer)
+        first_player = players[players.index(dealer) + 1]
+    print(discard_message)
+    first_card_throw = first_player.discard("please type a card to play from your hand", discard_message, lambda a, b, c: True, [None] * 10)
     if first_card_throw != left_bauer:
         suit_to_follow = first_card_throw.suit
     else:
-        opposite_suit = {"hearts": "diamonds", "diamonds": "hearts", "spades": "clubs", "clubs": "spades"}
+        opposite_suit = {"H": "D", "D": "H", "S": "C", "C": "S"}
         suit_to_follow = opposite_suit[first_card_throw.suit]
     cards_played.append([first_card_throw, first_player])
     print(first_player.name, " played: ", first_card_throw.display_value)
-    card_rank, null = card_rank_creator(_trump_suit, _trump_color, suit_to_follow)
+    discard_message += str("\n\n" + first_player.name + " played: " + first_card_throw.display_value)
+    card_rank, null = card_rank_creator(trump_suit, trump_color, suit_to_follow)
     for i in range(1, 4):
-        next_player = clockwise_order[clockwise_order.index(first_player) + i]
-        while True:
-            next_player_card_throw = next_player.play_card(_trump_suit, suit_to_follow, left_bauer)
-            if not next_player_card_throw:
-                break
-            else:
-                input("please type a Card in your hand or follow suit\n   Hit enter to continue")
-                print("\033[H\033[J")
-                print("the trump suit is", _trump_suit, "\n")
-                print("your Team has", userTeam.handScore, "tricks")
-                print("the other Team has", otherTeam.handScore, "tricks\n")
-                for j in cards_played:
-                    if j[1] != user:
-                        print(j[1].name, "played: ", j[0].display_value)
-                    else:
-                        break
+        next_player = players[players.index(first_player) + i]
+        next_player_card_throw = next_player.discard("please type a card to play from your hand", discard_message, legal_play, [suit_to_follow, trump_suit, left_bauer])
         cards_played.append([next_player_card_throw, next_player])
         print(next_player.name, "played: ", next_player_card_throw.display_value)
-    cards_played.sort(key=lambda buh: card_rank.index(buh[0]))
+        discard_message += str("\n" + next_player.name + "played: " + next_player_card_throw.display_value)
+    cards_played.sort(key=lambda x: card_rank.index(x[0]))
     print()
     # for i in cardsPlayed:
     # print(i[0].display_value, i[1].name)
     trick_winner = cards_played[0][1]
-    print(trick_winner.name, "won this trick with", cards_played[0][0].display_value, ", they will go fist next hand\n")
+    print(trick_winner.name, "won this trick with the", cards_played[0][0].display_value, ", and will go fist next hand\n")
     input("hit enter to continue")
     print("\033[H\033[J")
     return trick_winner
 
 
 def play_hand(dealer):
+    for i in players:
+        i.hand = []
+        i.display_hand = []
     trump_suit, trump_color, team_that_called = trump_chooser(dealer)
-    print("the Team that called is", team_that_called.name, "\n")
+    print(team_that_called.name, "called", suits[trump_suit][0], "\n")
     input("hit enter to continue")
     print("\033[H\033[J")
     last_winner = None
@@ -410,7 +357,8 @@ def play_hand(dealer):
         last_winner.team.handScore += 1
     for i in teams:
         if i.handScore >= 3:
-            print(i.name, "won this hand. the next dealer is", clockwise_order[clockwise_order.index(dealer) + 1].name)
+            print(i.name, "won this hand. the next dealer is ", players[players.index(dealer) + 1].name, "(" + players[players.index(dealer) + 1].team.name + ")")
+            # Im sorry about commas and +'s in the same statement. It's to get rid of the spaces with the  ('s
             i.points += 1
             if i.handScore == 5:
                 i.points += 1
@@ -418,17 +366,17 @@ def play_hand(dealer):
                 i.points += 1
             # figure out going alone?
         i.handScore = 0
-    print("your Team has", userTeam.points, "points")
-    print("the other Team has", otherTeam.points, "points")
+    print("your Team has", user_team.points, "points")
+    print("the other Team has", other_team.points, "points")
     input("hit Enter to continue")
     print("\033[H\033[J")
-    new_dealer = clockwise_order[clockwise_order.index(dealer) + 1]
+    new_dealer = players[players.index(dealer) + 1]
     return new_dealer
 
 
 def play_game():
     for i in range(20):
-        nothing, dealer = shuffle_and_deal(random.choice(clockwise_order))
+        dealer = random.choice(players)
         play_hand(dealer)
         for x in teams:
             if x.points >= 5:
@@ -445,3 +393,4 @@ def play_game():
 
 
 play_game()
+
