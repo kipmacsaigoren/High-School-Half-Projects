@@ -39,11 +39,11 @@ class Player(object):
             while test_card is None:
                 if card_in_hand is not True:
                     input("You must type a card that is in your hand\n     hit enter to continue")
-                    print(chr(27) + "[2J")
+                    print('\033c')
                     print(reprint_message)
                 elif not legal:
                     input(legal_choice.__doc__ + "\n      hit enter to continue")
-                    print(chr(27) + "[2J")
+                    print('\033c')
                     print(reprint_message)
                     # should this be an input? (hit enter to continue?)
                     # probably dangerous to use the docstring as an error message but who cares really
@@ -213,7 +213,7 @@ def trump_chooser(dealer):
                     else:
                         input("Please either type 'Y', 'N'\n    Hit enter to continue")
                         # clear the terminal
-                        print(chr(27) + "[2J")
+                        print('\033c')
                         print("The dealer is " + dealer.name + " (" + dealer.team.name + ")")
                         print("The Card on the table is \n\n", kitty[0].display_value, "\n")
                         for j in who_did_what:
@@ -255,7 +255,7 @@ def trump_chooser(dealer):
                 suits_left = list(filter(lambda a: a != "pass", suits_left))
             if chooser == user:
                 while True:
-                    print(chr(27) + "[2J")
+                    print('\033c')
                     print("the Card that was passed on was", kitty[0].display_value, "\n\n")
                     for j in who_did_what:
                         print(j[0], j[1])
@@ -336,7 +336,7 @@ def play_trick(dealer, last_trick_winner, trump_suit, trump_color):
     trick_winner = cards_played[0][1]
     print(trick_winner.name, "won this trick with the", cards_played[0][0].display_value, ", and will go fist next hand\n")
     input("hit enter to continue")
-    print(chr(27) + "[2J")
+    print('\033c')
     return trick_winner
 
 
@@ -347,7 +347,7 @@ def play_hand(dealer):
     trump_suit, trump_color, team_that_called = trump_chooser(dealer)
     print(team_that_called.name, "called", suits[trump_suit][0], "\n")
     input("hit enter to continue")
-    print(chr(27) + "[2J")
+    print('\033c')
     last_winner = None
     for i in range(5):
         if i == 0:
@@ -369,7 +369,7 @@ def play_hand(dealer):
     print("your Team has", user_team.points, "points")
     print("the other Team has", other_team.points, "points")
     input("hit Enter to continue")
-    print(chr(27) + "[2J")
+    print('\033c')
     new_dealer = players[players.index(dealer) + 1]
     return new_dealer
 
