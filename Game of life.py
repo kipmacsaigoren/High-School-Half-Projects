@@ -1,4 +1,4 @@
-import random, time
+import random, time, replit
 
 currentlyLivingCells = []
 
@@ -47,7 +47,7 @@ def creator(length, height):
     for i in range(height):
         board.append([])
         for l in range(length):
-            board[i].append(cell(l, i, False))
+            board[i].append(cell(l, i, random.choice([False, True])))
             if board[i][l].living:
                 currentlyLivingCells.append(board[i][l])
     for y in range(height):
@@ -132,43 +132,13 @@ def generationStepper(gridInput):
         currentlyLivingCells.remove(gridInput[i.yValue][i.xValue])
 
 
-def pastGenerationsFiller(gridInput, miniHeight, miniWidth, gridHeightInput, gridWidthInput, generations):
-    lineageList = []
-    for i in range(generations):
-        if i == 0:
-            for x in range(gridWidthInput - miniWidth):
-                for y in range(gridHeightInput - miniHeight):
-                    lineageList.append([miniGrid(miniHeight, miniWidth, gridInput, x, y)])
-        else:
-            for n in range(gridWidthInput - miniWidth):
-                for b in range(gridHeightInput - miniHeight):
-                    lineageList[n * (gridHeightInput - miniHeight) + b].append(
-                        miniGrid(miniHeight, miniWidth, gridInput, n, b))
-        generationStepper(gridInput)
-    return lineageList
-
-
-def patternChecker(lineageList):
-    for i in range(len(lineageList)):
-        sameChecker = {}
-        for x in range(len(lineageList[i])):
-            if x != 0:
-                for d in range(len(lineageList[i][x].board)):
-                    for f in range(len(lineageList[i][x].board[d])):
-                        sameChecker.update(
-                            {lineageList[i][x].board[d][f].living: lineageList[i][x - 1].board[d][f].living})
-                if sameChecker.keys() == sameChecker.values():
-                    for n in lineageList[i]:
-                        printer(n, True)
-                        print()
-                    return (lineageList[i])
-
-
-gridHeight = 28
-gridLength = 50
+gridHeight = 40
+gridLength = 60
 
 grid = creator(gridLength, gridHeight)
 
-this = pastGenerationsFiller(grid, 3, 3, gridHeight, gridLength, 50)
-
-patternChecker(this)
+while True:
+    printer(grid, False)
+    generationStepper(grid)
+    time.sleep(.4)
+    replit.clear()
