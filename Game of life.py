@@ -1,5 +1,7 @@
 import random, time, replit
-
+# this has to be run on replit
+# I have yet to figure out how to clear terminals
+# universally at least
 currentlyLivingCells = []
 
 
