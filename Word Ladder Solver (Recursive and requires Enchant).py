@@ -1,4 +1,7 @@
 import enchant, re
+# enchant has apparently been dicontinues on 64 bit machines and so now only works on
+# pythonanywhere.com
+# 
 
 letters = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
            "w", "x", "y", "z"]
