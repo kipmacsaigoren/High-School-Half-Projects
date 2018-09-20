@@ -1,4 +1,4 @@
 # High-School-Half-Projects
-most of this is really badly written and it barely works but hey.
+most of this is really badly written, wont clear the terminal correctly and barely works, but hey.
 
 It works
