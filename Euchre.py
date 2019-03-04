@@ -204,7 +204,7 @@ def trump_chooser(dealer):
                     if user == dealer:
                         pickup = input("\nWould you like to pick it up? Y/N\n").lower()
                     else:
-                        pickup = input("\nWould you like " + dealer.name + " to pick it up? Y/N\n")
+                        pickup = input("\nWould you like " + dealer.name + " to pick it up? Y/N\n").lower()
                     if pickup == "y" or pickup == "n":
                         who_did_what.append([chooser, choices_dict[pickup]])
                         # so that we can reprint it
@@ -307,7 +307,7 @@ def play_trick(dealer, last_trick_winner, trump_suit, trump_color):
     # This will do just that half of the function with none as an input for suit to follow
     discard_message = "The trump suit is " + suits[trump_suit][0] + \
                      "\n\nYour team has " + str(user_team.handScore) + " tricks" + \
-                     "\nThe other Team has " + str(other_team.handScore) + " tricks\n"
+                     "\nThe other team has " + str(other_team.handScore) + " tricks\n"
     if dealer is None:
         first_player = last_trick_winner
     elif last_trick_winner is None:
@@ -334,7 +334,7 @@ def play_trick(dealer, last_trick_winner, trump_suit, trump_color):
     # for i in cardsPlayed:
     # print(i[0].display_value, i[1].name)
     trick_winner = cards_played[0][1]
-    print(trick_winner.name, "won this trick with the", cards_played[0][0].display_value, ", and will go fist next hand\n")
+    print(trick_winner.name, "won this trick with the", cards_played[0][0].display_value, ", and will go first next hand\n")
     input("hit enter to continue")
     print('\033c')
     return trick_winner
@@ -358,7 +358,7 @@ def play_hand(dealer):
     for i in teams:
         if i.handScore >= 3:
             print(i.name, "won this hand. the next dealer is ", players[players.index(dealer) + 1].name, "(" + players[players.index(dealer) + 1].team.name + ")")
-            # Im sorry about commas and +'s in the same statement. It's to get rid of the spaces with the  ('s
+            # I'm sorry about commas and +'s in the same statement. It's to get rid of the spaces with the  ('s
             i.points += 1
             if i.handScore == 5:
                 i.points += 1
@@ -384,6 +384,8 @@ def play_game():
                 play_again = input().lower()
                 while True:
                     if play_again == "y" or play_again == "n":
+                        user_team = Team("your team", user, cross_player)
+                        other_team = Team("the other team", left_player, right_player)
                         break
                     print("please either type 'y' or 'n'")
                 if play_again == "y":
